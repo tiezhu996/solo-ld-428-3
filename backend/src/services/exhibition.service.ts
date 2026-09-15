@@ -4,13 +4,14 @@ import { Model } from 'mongoose';
 
 import { Exhibition, ExhibitionDocument } from '../models/exhibition.schema';
 import { ExhibitionStatus } from '../types/enums';
+import { serializeList } from '../utils/serialize';
 
 @Injectable()
 export class ExhibitionService {
   constructor(@InjectModel(Exhibition.name) private readonly exhibitionModel: Model<ExhibitionDocument>) {}
 
   async list() {
-    return this.exhibitionModel.find().sort({ startDate: -1 }).lean();
+    return serializeList(await this.exhibitionModel.find().sort({ startDate: -1 }).lean());
   }
 
   async find(id: string) {

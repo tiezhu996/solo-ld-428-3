@@ -1,11 +1,12 @@
 import { apiPaths } from '../constants/apiPaths';
 import { artists } from '../utils/mockData';
+import { normalizeIdList } from '../utils/normalizeId';
 import { request } from '../utils/request';
 import type { Artist } from '../types/artist';
 
 export async function fetchArtists(): Promise<Artist[]> {
   try {
-    return await request<Artist[]>(apiPaths.artists);
+    return normalizeIdList(await request<Artist[]>(apiPaths.artists));
   } catch {
     return artists;
   }

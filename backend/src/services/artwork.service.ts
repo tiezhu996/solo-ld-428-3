@@ -5,6 +5,7 @@ import { FilterQuery, Model } from 'mongoose';
 import { Artwork, ArtworkDocument } from '../models/artwork.schema';
 import { Artist, ArtistDocument } from '../models/artist.schema';
 import { ArtworkStatus, Medium } from '../types/enums';
+import { serialize, serializeList } from '../utils/serialize';
 
 export interface ArtworkListFilters {
   keyword?: string;
@@ -47,11 +48,11 @@ export class ArtworkService {
       ];
     }
 
-    return this.artworkModel.find(query).sort({ updatedAt: -1 }).lean();
+    return serializeList(await this.artworkModel.find(query).sort({ updatedAt: -1 }).lean());
   }
 
   async find(id: string) {
-    return this.artworkModel.findById(id).lean();
+    return serialize(await this.artworkModel.findById(id).lean());
   }
 
   async create(input: Partial<Artwork>) {

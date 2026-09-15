@@ -3,13 +3,14 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 
 import { Artist, ArtistDocument } from '../models/artist.schema';
+import { serializeList } from '../utils/serialize';
 
 @Injectable()
 export class ArtistService {
   constructor(@InjectModel(Artist.name) private readonly artistModel: Model<ArtistDocument>) {}
 
   async list() {
-    return this.artistModel.find().sort({ followerCount: -1 }).lean();
+    return serializeList(await this.artistModel.find().sort({ followerCount: -1 }).lean());
   }
 
   async find(id: string) {
