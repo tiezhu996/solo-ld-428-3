@@ -1,15 +1,34 @@
-import { Body, Controller, Get, Param, Patch, Post } from '@nestjs/common';
+import { Body, Controller, Get, Param, Patch, Post, Query } from '@nestjs/common';
 
 import { ArtworkService } from '../services/artwork.service';
+import { ArtworkStatus, Medium } from '../types/enums';
 import { ok } from '../utils/response';
+
+function parseMedium(value?: string): Medium | undefined {
+  return value && Object.values(Medium).includes(value as Medium) ? (value as Medium) : undefined;
+}
+
+function parseStatus(value?: string): ArtworkStatus | undefined {
+  return value && Object.values(ArtworkStatus).includes(value as ArtworkStatus)
+    ? (value as ArtworkStatus)
+    : undefined;
+}
 
 @Controller('api/artworks')
 export class ArtworkController {
   constructor(private readonly artworkService: ArtworkService) {}
 
   @Get()
-  async list() {
-    return this.artworkService.list();
+  async list(
+    @Query('keyword') keyword?: string,
+    @Query('medium') medium?: string,
+    @Query('status') status?: string,
+  ) {
+    return this.artworkService.list({
+      keyword: keyword?.trim() || undefined,
+      medium: parseMedium(medium),
+      status: parseStatus(status),
+    });
   }
 
   @Get(':id')

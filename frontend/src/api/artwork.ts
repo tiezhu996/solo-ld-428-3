@@ -1,17 +1,38 @@
 import { apiPaths } from '../constants/apiPaths';
-import { artworks } from '../utils/mockData';
+import { artists, artworks } from '../utils/mockData';
+import { filterArtworks, type ArtworkFilterParams } from '../utils/filterArtworks';
 import { request } from '../utils/request';
 import type { Artwork } from '../types/artwork';
 
-export async function fetchArtworks(): Promise<Artwork[]> {
+function buildQuery(params: ArtworkFilterParams): string {
+  const search = new URLSearchParams();
+  const keyword = params.keyword?.trim();
+  if (keyword) {
+    search.set('keyword', keyword);
+  }
+  if (params.medium) {
+    search.set('medium', params.medium);
+  }
+  if (params.status) {
+    search.set('status', params.status);
+  }
+  const query = search.toString();
+  return query ? `?${query}` : '';
+}
+
+export async function fetchArtworks(params: ArtworkFilterParams = {}): Promise<Artwork[]> {
   try {
-    return await request<Artwork[]>(apiPaths.artworks);
+    return await request<Artwork[]>(`${apiPaths.artworks}${buildQuery(params)}`);
   } catch {
-    return artworks;
+    return filterArtworks(artworks, params, artists);
   }
 }
 
 export async function fetchArtwork(id: string): Promise<Artwork | undefined> {
-  const list = await fetchArtworks();
-  return list.find((artwork) => artwork.id === id);
+  try {
+    const list = await request<Artwork[]>(apiPaths.artworks);
+    return list.find((artwork) => artwork.id === id);
+  } catch {
+    return artworks.find((artwork) => artwork.id === id);
+  }
 }
