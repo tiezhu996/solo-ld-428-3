@@ -1,6 +1,6 @@
 import type { Artist } from '../types/artist';
 import type { Artwork } from '../types/artwork';
-import { ArtworkStatus, Medium } from '../types/enums';
+import type { ArtworkStatus, Medium } from '../types/enums';
 
 export interface ArtworkFilterParams {
   keyword?: string;
@@ -23,9 +23,10 @@ export function filterArtworks(
 ): Artwork[] {
   const keyword = params.keyword?.trim().toLocaleLowerCase();
   const medium = params.medium;
-  const status = params.status ?? ArtworkStatus.Published;
+  const status = params.status;
 
   return artworks.filter((artwork) => {
+    // 仅在显式指定 status 时过滤；工作台全量加载不传 status，需保留草稿/已售等全部状态。
     if (status && artwork.status !== status) {
       return false;
     }
